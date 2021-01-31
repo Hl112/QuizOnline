@@ -37,6 +37,11 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Subject.findByDescription", query = "SELECT s FROM Subject s WHERE s.description = :description")})
 public class Subject implements Serializable {
 
+    @Column(name = "Question")
+    private Integer question;
+    @Column(name = "Time")
+    private Integer time;
+
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -49,14 +54,6 @@ public class Subject implements Serializable {
     @Size(min = 1, max = 100)
     @Column(name = "SubjectName")
     private String subjectName;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "Question")
-    private int question;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "Time")
-    private int time;
     @Size(max = 200)
     @Column(name = "Description")
     private String description;
@@ -95,21 +92,6 @@ public class Subject implements Serializable {
         this.subjectName = subjectName;
     }
 
-    public int getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(int question) {
-        this.question = question;
-    }
-
-    public int getTime() {
-        return time;
-    }
-
-    public void setTime(int time) {
-        this.time = time;
-    }
 
     public String getDescription() {
         return description;
@@ -160,6 +142,22 @@ public class Subject implements Serializable {
     @Override
     public String toString() {
         return "lamhdt.model.Subject[ subjectCode=" + subjectCode + " ]";
+    }
+
+    public Integer getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Integer question) {
+        this.question = question;
+    }
+
+    public Integer getTime() {
+        return time;
+    }
+
+    public void setTime(Integer time) {
+        this.time = time;
     }
     
 }

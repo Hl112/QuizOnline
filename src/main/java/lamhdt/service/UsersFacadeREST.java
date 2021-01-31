@@ -9,6 +9,7 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -19,6 +20,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import lamhdt.model.Users;
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  *
@@ -37,14 +39,27 @@ public class UsersFacadeREST extends AbstractFacade<Users> {
 
     @POST
     @Override
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Consumes(MediaType.APPLICATION_JSON)
     public void create(Users entity) {
-        super.create(entity);
+        System.out.println(entity.getFullname());
+        System.out.println(entity.getUsername());
+        String password_SHA = DigestUtils.sha256Hex(entity.getPassword());
+        em = getEntityManager();
+       em.getTransaction().begin();
+       String jpql = "Insert Into Users(Username, Password, Fullname, Role, Status) VALUES(?,?,?,?,?)";
+       Query query = em.createNativeQuery(jpql);
+       query.setParameter(1, entity.getUsername());
+       query.setParameter(2, password_SHA);
+       query.setParameter(3, entity.getFullname());
+       query.setParameter(4, "student");
+       query.setParameter(5, "New");
+       query.executeUpdate();
+       em.getTransaction().commit();
     }
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Consumes(MediaType.APPLICATION_JSON)
     public void edit(@PathParam("id") String id, Users entity) {
         super.edit(entity);
     }
@@ -57,21 +72,42 @@ public class UsersFacadeREST extends AbstractFacade<Users> {
 
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
     public Users find(@PathParam("id") String id) {
         return super.find(id);
     }
 
     @GET
+    @Path("/checkLogin/{username}/{password}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Users checkLogin(@PathParam("username") String username, @PathParam("password") String password) {
+        Users user = super.find(username);
+        boolean check = false;
+        if (user != null) {
+            if (user.getUsername().equals(username)) {
+                String pass_sha = DigestUtils.sha256Hex(password);
+                if (user.getPassword().equals(pass_sha)) {
+                    check = true;
+                }
+            }
+        }
+        if (check) {
+            return user;
+        } else {
+            return null;
+        }
+    }
+
+    @GET
     @Override
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
     public List<Users> findAll() {
         return super.findAll();
     }
 
     @GET
     @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
     public List<Users> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
         return super.findRange(new int[]{from, to});
     }
@@ -83,6 +119,4 @@ public class UsersFacadeREST extends AbstractFacade<Users> {
         return String.valueOf(super.count());
     }
 
-  
-    
 }

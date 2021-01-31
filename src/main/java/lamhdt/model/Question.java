@@ -6,10 +6,9 @@
 package lamhdt.model;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -17,14 +16,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -36,10 +33,11 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Question.findAll", query = "SELECT q FROM Question q"),
     @NamedQuery(name = "Question.findById", query = "SELECT q FROM Question q WHERE q.id = :id"),
-    @NamedQuery(name = "Question.findByQuestion", query = "SELECT q FROM Question q WHERE q.question = :question"),
+    @NamedQuery(name = "Question.findByCreateDate", query = "SELECT q FROM Question q WHERE q.createDate = :createDate"),
     @NamedQuery(name = "Question.findByImage", query = "SELECT q FROM Question q WHERE q.image = :image"),
     @NamedQuery(name = "Question.findByMessage", query = "SELECT q FROM Question q WHERE q.message = :message"),
-    @NamedQuery(name = "Question.findByCreateDate", query = "SELECT q FROM Question q WHERE q.createDate = :createDate")})
+    @NamedQuery(name = "Question.findByQuestion", query = "SELECT q FROM Question q WHERE q.question = :question"),
+    @NamedQuery(name = "Question.findByStatus", query = "SELECT q FROM Question q WHERE q.status = :status")})
 public class Question implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,23 +48,26 @@ public class Question implements Serializable {
     private Integer id;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 350)
-    @Column(name = "Question")
-    private String question;
-    @Size(max = 100)
-    @Column(name = "Image")
-    private String image;
-    @Size(max = 1073741823)
-    @Column(name = "Message")
-    private String message;
     @Column(name = "CreateDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "questionID")
-    private Collection<Answer> answerCollection;
+    @Size(max = 255)
+    @Column(name = "Image")
+    private String image;
+    @Size(max = 255)
+    @Column(name = "Message")
+    private String message;
+    @Size(max = 255)
+    @Column(name = "Question")
+    private String question;
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "Status")
+    private boolean status;
     @JoinColumn(name = "SubjectCode", referencedColumnName = "SubjectCode")
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Subject subjectCode;
+   
 
     public Question() {
     }
@@ -75,9 +76,11 @@ public class Question implements Serializable {
         this.id = id;
     }
 
-    public Question(Integer id, String question) {
+
+    public Question(Integer id, Date createDate, boolean status) {
         this.id = id;
-        this.question = question;
+        this.createDate = createDate;
+        this.status = status;
     }
 
     public Integer getId() {
@@ -88,12 +91,12 @@ public class Question implements Serializable {
         this.id = id;
     }
 
-    public String getQuestion() {
-        return question;
+    public Date getCreateDate() {
+        return createDate;
     }
 
-    public void setQuestion(String question) {
-        this.question = question;
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     public String getImage() {
@@ -112,21 +115,20 @@ public class Question implements Serializable {
         this.message = message;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public String getQuestion() {
+        return question;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setQuestion(String question) {
+        this.question = question;
     }
 
-    @XmlTransient
-    public Collection<Answer> getAnswerCollection() {
-        return answerCollection;
+    public boolean getStatus() {
+        return status;
     }
 
-    public void setAnswerCollection(Collection<Answer> answerCollection) {
-        this.answerCollection = answerCollection;
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
     public Subject getSubjectCode() {

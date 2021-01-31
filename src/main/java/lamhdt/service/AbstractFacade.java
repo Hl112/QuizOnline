@@ -8,6 +8,9 @@ package lamhdt.service;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaQuery;
+import lamhdt.model.Subject;
 
 /**
  *
@@ -42,9 +45,18 @@ public abstract class AbstractFacade<T> {
     }
 
     public List<T> findAll() {
-        javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
-        cq.select(cq.from(entityClass));
-        return getEntityManager().createQuery(cq).getResultList();
+        EntityManager em = getEntityManager();
+        try {
+            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+            cq.select(cq.from(entityClass));
+            Query q = em.createQuery(cq);
+            return q.getResultList();
+        } finally {
+            em.close();
+        }
+//        javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
+//        cq.select(cq.from(entityClass));
+//        return getEntityManager().createQuery(cq).getResultList();
     }
 
     public List<T> findRange(int[] range) {
