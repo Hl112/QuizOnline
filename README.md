@@ -26,7 +26,7 @@ This is a server of <a href="https://github.com/Hl112/QuizOnlineClient.git">Clie
 * SQL
 
 ### Implemented technology
-* Java JDK8
+* Java JDK15
 * JPA
 * RESTful API
 
